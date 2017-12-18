@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="testanygen.restapi"
+            nameFilter="*.*"
+            objectClass="org.eclipse.core.resources.IFile">
+         <menu
+               id="testanygen.menu1"
+               label="TEST ANYGEN RESTAPI"
+               path="additions">
+            <separator
+                  name="TAGPluginGroup">
+            </separator>
+         </menu>
+         <action
+               class="testanygenecl.actions.MyAction"
+               enablesFor="1"
+               id="testanygen.restapi2"
+               label="NOT YET IMPLEMENTED"
+               menubarPath="testanygen.menu1/TAGPluginGroup">
+         </action>
+         <action
+               class="testanygenecl.actions.TagAction"
+               enablesFor="1"
+               id="testanygen.restapi"
+               label="[TAG] Generate RestAssured Tests"
+               menubarPath="testanygen.menu1/NSIPluginGroup">
+         </action>
+      </objectContribution>
+   </extension>
+
+
+</plugin>
