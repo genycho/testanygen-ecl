@@ -17,7 +17,7 @@
             </separator>
          </menu>
          <action
-               class="testanygenecl.actions.MyAction"
+               class="testanygenecl.actions.TagAction"
                enablesFor="1"
                id="testanygen.restapi2"
                label="NOT YET IMPLEMENTED"

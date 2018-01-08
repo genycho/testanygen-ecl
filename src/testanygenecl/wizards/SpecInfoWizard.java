@@ -1,26 +1,29 @@
 package testanygenecl.wizards;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.wizard.Wizard;
 
-import io.swagger.models.Swagger;
+import com.tag.restapi.spec.vo.RestAPIInfo;
+
 import testanygenecl.common.EclipseUtil;
 
 public class SpecInfoWizard extends Wizard{
 	private IProject project = null;
-	private Swagger swaggerInfo = null;
+	private List<RestAPIInfo> apiInfoList=null;
 	
 	/**
 	 * 생성 후 별도로 세팅할 메소드. 자동 호출되지 않으므로 임의로 호출할 것.
 	 * @param eclipsePjtName
 	 */
-	public void init(IProject project, Swagger swaggerInfo){
+	public void init(IProject project, List<RestAPIInfo> apiInfoList){
 		this.project = project;
-		this.swaggerInfo = swaggerInfo;
+		this.apiInfoList = apiInfoList;
 	}
 	
 	public void addPages(){
-		addPage(new SpecInfoPage(swaggerInfo));
+		addPage(new SpecInfoPage(apiInfoList));
 	}
 	
 //	private SpecInfoPage getDirectoryPage(){
