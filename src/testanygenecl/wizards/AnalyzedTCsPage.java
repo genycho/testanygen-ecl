@@ -1,5 +1,6 @@
 package testanygenecl.wizards;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -18,105 +19,101 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
+import com.tag.data.vo.TestCaseVO;
 import com.tag.restapi.spec.vo.RestAPIInfo;
+import com.tag.restapi.writer.RestAPITestCaseVO;
+import com.tag.restapi.writer.RestAPITestSuiteVO;
+
+import testanygenecl.common.EclipseUtil;
 
 public class AnalyzedTCsPage extends WizardPage{
 	public static final String PAGE_NAME = "REST API TESTCASE LIST";
 	
-	private List<RestAPIInfo> restApiList;
+	private List<RestAPITestSuiteVO> restApiTestSuiteList;
+	private List<TestCaseInfoViewVO> testCaseInfoViewVO = new ArrayList<>();
+	boolean analyzed = false;
 	
 	private TableViewer tableViewer;
-	private Button button;
 	
-	public AnalyzedTCsPage(List<RestAPIInfo> restApiList){
+	public AnalyzedTCsPage(){
 		super(PAGE_NAME, "List of REST API TestCase list", null);
-		this.restApiList = restApiList;
 	}
+	
+	public void analyze(List<RestAPITestSuiteVO> restApiTestSuiteList){
+		this.restApiTestSuiteList = restApiTestSuiteList;
+		//THINKME	여기서 분석을 하는게 맞을까? 아마도 선택 항목이 바뀌면 
+		for(RestAPITestSuiteVO temp : restApiTestSuiteList) {
+			if(temp.getTestCaseList() != null) {
+				for(TestCaseVO temp2 : temp.getTestCaseList()) {
+					try {
+						this.testCaseInfoViewVO.add(new TestCaseInfoViewVO(temp, (RestAPITestCaseVO)temp2));
+					}catch(Exception skip) {
+						System.out.println("정말로 이 안으로 돌아온다고? 에이~설마.");
+					}
+				}
+			}
+		}
+		analyzed = true;
+	}
+	
+	
 	
 	/**
 	 * 최초에 control 생성 
 	 */
 	public void createControl(Composite parent){
+		if(analyzed == false) {
+			EclipseUtil.showInfoDialog(getShell(), "분석이 사전에 실행되지 않았습니다.");
+		}
 		Composite topLevel = new Composite(parent, SWT.NONE);
 		topLevel.setLayout(new GridLayout(1, false));
 		
-		tableViewer = new TableViewer(topLevel, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+		Composite secondFirstLevel = new Composite(topLevel, SWT.NONE);
+		Composite secondSecondLevel = new Composite(topLevel, SWT.NONE);
+		
+		secondFirstLevel.setLayout(new GridLayout(1, false));
+		tableViewer = new TableViewer(secondFirstLevel, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 				
 		Table table = tableViewer.getTable();
 		table.setLayoutData(new GridData(GridData.FILL_BOTH)); 
 	    table.setHeaderVisible(true);
 	    table.setLinesVisible(true);
 	    TableLayout layout = new TableLayout();
-	    layout.addColumnData(new ColumnWeightData(10,100,true));//대상 API (이름), 
-	    layout.addColumnData(new ColumnWeightData(20,100,true));//메소드
-	    layout.addColumnData(new ColumnWeightData(10,100,true));//테스트 케이스명
-	    layout.addColumnData(new ColumnWeightData(20,100,true));//설명
-	    layout.addColumnData(new ColumnWeightData(30,100,true));//
-	    layout.addColumnData(new ColumnWeightData(10,100,true));//
+	    layout.addColumnData(new ColumnWeightData(10,20,true));//no 
+	    layout.addColumnData(new ColumnWeightData(20,40,true));//대상 이름
+	    layout.addColumnData(new ColumnWeightData(10,50,true));//테스트 케이스명
+	    layout.addColumnData(new ColumnWeightData(20,40,true));//타입
+	    layout.addColumnData(new ColumnWeightData(30,200,true));//설명
+	    layout.addColumnData(new ColumnWeightData(10,20,true));//분석레벨
 	    
 	    TableColumn column1 = new TableColumn(table, SWT.CENTER);
-	    column1.setWidth(100);
-	    column1.setText("select");
+	    column1.setText("no");
 	    TableColumn column2 = new TableColumn(table, SWT.CENTER);
-	    column2.setWidth(100);
-	    column2.setText("API Name");
+	    column2.setText("Test Suite");
 	    TableColumn column3 = new TableColumn(table, SWT.CENTER);
-	    column3.setWidth(100);
-	    column3.setText("Method");
+	    column3.setText("TC Name");
 	    TableColumn column4 = new TableColumn(table, SWT.CENTER);
-	    column4.setWidth(100);
-	    column4.setText("ApiPath");
+	    column4.setText("Type");
 	    TableColumn column5 = new TableColumn(table, SWT.CENTER);
 	    column5.setText("Description");
 	    TableColumn column6 = new TableColumn(table, SWT.CENTER);
-	    column6.setText("Category");
+	    column6.setText("Level");
 	    table.setLayout(layout);
 	    
 	    tableViewer.setContentProvider(new TagContentProvider());
 	    tableViewer.setLabelProvider(new TagLabelProvider());
 
-	    tableViewer.setInput(restApiList);
+	    tableViewer.setInput(restApiTestSuiteList);
 	    
-		button = new Button(topLevel, SWT.BUTTON2);
-//		button.add
-		
-//	    column1.addListener(SWT.Selection, sortListener);
-//	    column2.addListener(SWT.Selection, sortListener);
-//	    table.setSortColumn(column1);
-//	    table.setSortDirection(SWT.UP);
-
+	    secondSecondLevel.setLayout(new GridLayout(2, false));
 	    
-	    
-//		boolean check = button.getSelection();
-
-//		Label label = new Label(topLevel, SWT.CENTER);
-//		label.setText("조회조건: 프로젝트 명 ");
-//		
-//		projectNameText = new Text(topLevel, SWT.SINGLE | SWT.BORDER);
-//		projectNameText.setEnabled(true);
-//		projectNameText.setTextLimit(255);
-//		projectNameText.setFont(topLevel.getFont());
-		
-//		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-//      viewer.setContentProvider(new TreeContentProvider());
-//      viewer.getTree().setHeaderVisible(true);
-//      viewer.getTree().setLinesVisible(true);
-//
-//      TreeViewerColumn viewerColumn = new TreeViewerColumn(viewer, SWT.NONE);
-//      viewerColumn.getColumn().setWidth(300);
-//      viewerColumn.getColumn().setText("Names");
-//      viewerColumn.setLabelProvider(new ColumnLabelProvider());
-//
-//      
-//
-//      GridLayoutFactory.fillDefaults().generateLayout(parent);
-
 		setControl(parent);
 		setPageComplete(true);
 	}
-	
-	public boolean useDefaultDirectory(){
-		return button.getSelection();
+
+	public void refreshInput(List<TestCaseInfoViewVO> testCaseViewList) {
+		tableViewer.setInput(testCaseViewList);
+		tableViewer.refresh();
 	}
 
 }
@@ -131,67 +128,106 @@ class TagRATCContentProvider implements IStructuredContentProvider{
 }
 
 class TagRATCLabelProvider implements ITableLabelProvider{
-
+	int rowCountHereQuestion = 0;
 	@Override
 	public void addListener(ILabelProviderListener arg0) {
 	}
-
 	@Override
 	public void dispose() {
 	}
-
 	@Override
 	public boolean isLabelProperty(Object arg0, String arg1) {
 		return false;
 	}
-
 	@Override
 	public void removeListener(ILabelProviderListener arg0) {
 	}
-
 	@Override
 	public Image getColumnImage(Object arg0, int arg1) {
 		return null;
 	}
-
 	@Override
 	public String getColumnText(Object arg0, int arg1) {
-		RestAPIInfo restAPIInfo = (RestAPIInfo) arg0;
+		if(arg0 == null) {
+			return null;
+		}
+		
+		TestCaseInfoViewVO testCaseInfoViewVO = (TestCaseInfoViewVO) arg0;
 		switch(arg1) {
 		case 0 :
-			return "";			
+			return String.valueOf(++rowCountHereQuestion);
 		case 1 :
-			return restAPIInfo.getApiName();
+			return testCaseInfoViewVO.getTargetName();
 		case 2 :
-			return restAPIInfo.getMethod();
+			return testCaseInfoViewVO.getTcName();
 		case 3 :
-			return restAPIInfo.getApiPath();
+			return testCaseInfoViewVO.getTcType();
 		case 4 :
-			return restAPIInfo.getDescription();
+			return testCaseInfoViewVO.getDescription();
 		case 5 :
-			return restAPIInfo.getApiTag();
+			return testCaseInfoViewVO.getAnalyzeLevel();
 		default:
 			return "NotExpectedIndex!";
 		}
-		
 	}
 }
 
 class TestCaseInfoViewVO{
-	RestAPIInfo restAPIInfo;
-	public TestCaseInfoViewVO(RestAPIInfo restAPIInfo) {
-		this.restAPIInfo = restAPIInfo;
-	}
+	String tcName;
+	String targetName;
+	String tcType;
+	String description;
+	String analyzeLevel;
 	
-	public String[] getInformation() {
-		String[] texts = new String[6];
-		texts[0] = "false";
-		texts[1] = restAPIInfo.getApiName();
-		texts[2] = restAPIInfo.getMethod();
-		texts[3] = restAPIInfo.getDescription();
-		texts[4] = restAPIInfo.getApiPath();
-		texts[5] = restAPIInfo.getApiTag();
-		return texts;
+	RestAPITestSuiteVO testSuiteInfo;
+	RestAPITestCaseVO testCaseInfo;
+	
+	public TestCaseInfoViewVO(RestAPITestSuiteVO testSuiteInfo, RestAPITestCaseVO testCaseInfo) {
+		this.testSuiteInfo = testSuiteInfo;
+		this.testCaseInfo = testCaseInfo;
+		
+		this.targetName = testSuiteInfo.getTargetName() + "("+testSuiteInfo.getMethodType()+")";
+		this.tcName = testCaseInfo.getName();
+		this.description = testCaseInfo.getDescription();
+		this.analyzeLevel = String.valueOf(testCaseInfo.getGeneratedTestLevel());
+		this.tcType = testCaseInfo.getTestCaseType();
+	}
+
+	public String getTcName() {
+		return tcName;
+	}
+	public void setTcName(String tcName) {
+		this.tcName = tcName;
+	}
+	public String getTargetName() {
+		return targetName;
+	}
+	public void setTargetName(String targetName) {
+		this.targetName = targetName;
+	}
+	public String getTcType() {
+		return tcType;
+	}
+	public void setTcType(String tcType) {
+		this.tcType = tcType;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public String getAnalyzeLevel() {
+		return analyzeLevel;
+	}
+	public void setAnalyzeLevel(String analyzeLevel) {
+		this.analyzeLevel = analyzeLevel;
+	}
+	public RestAPITestSuiteVO getTestSuiteInfo() {
+		return testSuiteInfo;
+	}
+	public RestAPITestCaseVO getTestCaseInfo() {
+		return testCaseInfo;
 	}
 }
 

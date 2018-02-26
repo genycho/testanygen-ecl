@@ -2,8 +2,10 @@ package testanygenecl.wizards;
 
 import java.util.List;
 
+import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -16,57 +18,159 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 
 import com.tag.restapi.spec.vo.RestAPIInfo;
+
+import testanygenecl.common.EclipseUtil;
 
 public class SpecInfoPage extends WizardPage{
 	public static final String PAGE_NAME = "REST API SPECIFINCATION INFO";
 	
+	public static final String CBCODE_LV1 = "Lv1 (default)";
+	public static final String CBCODE_LV2 = "Lv2 (responses)";
+	public static final String CBCODE_LV3 = "Lv3 (method)";
+	public static final String CBCODE_LV4 = "Lv4 (parameters)";
+	public static final String CBCODE_LV5 = "Lv5 (advanced)";
+	
 	private List<RestAPIInfo> restApiList;
 	
 	private CheckboxTableViewer tableViewer;
+	
+	private Button previewButton;
 	private Button generateButton;
-	private Text searchText;
+	private Combo analyzeLevelCB;
 	private Combo outputTypeCB;
+	private Button allCheckButton;
 	
 	public SpecInfoPage(List<RestAPIInfo> restApiList){
-		super(PAGE_NAME, "Information of Specification file", null);
+		super(PAGE_NAME, PAGE_NAME, null);
 		this.restApiList = restApiList;
 	}
 	
+	@Override
+	public Image getImage() {
+		return null;
+	}
+
 	/**
 	 * 최초에 control 생성 
 	 */
 	public void createControl(Composite parent){
 		Composite topLevel = new Composite(parent, SWT.NONE);
 		topLevel.setLayout(new GridLayout(1, false));
+		parent.setSize(820, 380);
+		topLevel.setSize(820, 380);
 		
-		tableViewer = CheckboxTableViewer.newCheckList(topLevel, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-
-				
+		Composite secondFirstLevel = new Composite(topLevel, SWT.NONE);
+		secondFirstLevel.setLayout(EclipseUtil.getDefaultGridLayout(getShell(), 4));
+		
+		Composite secondSecondLevel = new Composite(topLevel, SWT.NONE);
+		secondSecondLevel.setLayout(EclipseUtil.getDefaultGridLayout(getShell(), 2,false));
+		
+		Composite secondThirdLevel = new Composite(topLevel, SWT.NONE);
+		secondThirdLevel.setLayout(EclipseUtil.getDefaultGridLayout(getShell(), 1,false));
+		
+		//TODO	향후 구현할 기능 
+//	    previewButton = new Button(secondFirstLevel, SWT.PUSH);
+//	    previewButton.setText("테스트 케이스 목록 미리보기");
+//	    previewButton.addListener(SWT.Selection, new Listener() {
+//			@Override
+//			public void handleEvent(Event e) {
+//				switch (e.type) {
+//		          case SWT.Selection:
+//		        	  EclipseUtil.showInfoDialog(getShell(), "준비중입니다.");
+//		            break;
+//		          }
+//			}
+//	      });
+//		generateButton = new Button(secondFirstLevel, SWT.PUSH);
+//		generateButton.setText("바로 생성하기");
+//		generateButton.addListener(SWT.Selection, new Listener() {
+//			@Override
+//			public void handleEvent(Event e) {
+//				switch (e.type) {
+//				case SWT.Selection:
+//					EclipseUtil.showInfoDialog(getShell(), "준비중입니다.Finish 버튼으로 생성해 주세요.");
+//					break;
+//				}
+//			}
+//		});
+		
+		/* 1-1) Second Component */
+		EclipseUtil.getLabel(secondFirstLevel, "Test Analyze Level Selection: ");
+		
+		/* 1-2) Third Component */
+		this.analyzeLevelCB = new Combo(secondFirstLevel, SWT.READ_ONLY);
+		analyzeLevelCB.setBounds(50, 50, 150, 65);
+	    String levelItems[] = { CBCODE_LV1, CBCODE_LV2, CBCODE_LV3, CBCODE_LV4, CBCODE_LV5};
+	    analyzeLevelCB.setItems(levelItems);
+	    analyzeLevelCB.select(0);
+		
+	    /* 1-3) Fourth Component */
+	    EclipseUtil.getLabel(secondFirstLevel, "Output Type Selection: ");
+		
+		/* 1-4) Fifth Component */
+	    outputTypeCB = new Combo(secondFirstLevel, SWT.READ_ONLY);
+	    outputTypeCB.setBounds(50, 50, 150, 65);
+	    String outputTypeItems[] = { "restassured", "postman","documents"};
+	    outputTypeCB.setItems(outputTypeItems);
+	    outputTypeCB.select(0);
+	    
+		/* 2-1) First Component */
+		allCheckButton = new Button(secondSecondLevel, SWT.CHECK);
+		allCheckButton.setText("all");
+		allCheckButton.addListener(SWT.CHECK, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+				switch (e.type) {
+				case SWT.CHECK:
+					tableViewer.setAllChecked(allCheckButton.getSelection());
+					break;
+				}
+			}
+		});
+		
+		//3-1)
+		tableViewer = CheckboxTableViewer.newCheckList(secondThirdLevel, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		Table table = tableViewer.getTable();
 	    table.setHeaderVisible(true);
 	    table.setLinesVisible(true);
 		GridData tableGridData = new GridData(SWT.BEGINNING, SWT.CENTER, true, true, 9,	1);
-		tableGridData.heightHint = 240;
-		tableGridData.widthHint = 1000;
+		tableGridData.widthHint = 800;
+		tableGridData.heightHint = 300;
 		table.setLayoutData(tableGridData);
+//		table.setSize(800, 200);
+		
+		tableViewer.addCheckStateListener(new ICheckStateListener() {
+			@Override
+			public void checkStateChanged(CheckStateChangedEvent arg0) {
+				Object[] checkedElements = tableViewer.getCheckedElements();
+				if (checkedElements != null && checkedElements.length > 0) {
+//					generateButton.setEnabled(true);
+					setPageComplete(true);
+				} else {
+//					generateButton.setEnabled(false);
+					setPageComplete(false);
+				}
+			}
+		});
 		
 	    TableLayout layout = new TableLayout();
-	    layout.addColumnData(new ColumnWeightData(10,50,true));//체크박스?
-	    layout.addColumnData(new ColumnWeightData(20,100,true));//이름
-	    layout.addColumnData(new ColumnWeightData(10,50,true));//메소드
-	    layout.addColumnData(new ColumnWeightData(20,60,true));//경로
+	    layout.addColumnData(new ColumnWeightData(10,10,true));//체크박스?
+	    layout.addColumnData(new ColumnWeightData(20,80,true));//이름
+	    layout.addColumnData(new ColumnWeightData(10,30,true));//메소드
+	    layout.addColumnData(new ColumnWeightData(20,40,true));//경로
 	    layout.addColumnData(new ColumnWeightData(30,200,true));//설명
-	    layout.addColumnData(new ColumnWeightData(10,80,true));//그룹
+	    layout.addColumnData(new ColumnWeightData(10,60,true));//그룹
 	    
 	    TableColumn column1 = new TableColumn(table, SWT.CENTER);
 //	    column1.setWidth(100);
-	    column1.setText("select");
+	    column1.setText("sel");
 	    TableColumn column2 = new TableColumn(table, SWT.CENTER);
 //	    column2.setWidth(100);
 	    column2.setText("API Name");
@@ -86,18 +190,6 @@ public class SpecInfoPage extends WizardPage{
 	    tableViewer.setLabelProvider(new TagLabelProvider());
 
 	    tableViewer.setInput(restApiList);
-	    
-	    outputTypeCB = new Combo(topLevel, SWT.READ_ONLY);
-	    outputTypeCB.setBounds(50, 50, 150, 65);
-	    String items[] = { "restassured", "PostMan",".csv"};
-	    outputTypeCB.setItems(items);
-	    outputTypeCB.select(0);
-//	    outputTypeCB.setEnabled(false);//선택된 목록이 0개일때는 비활성화
-	    
-	    
-		generateButton = new Button(topLevel, SWT.PUSH);
-		generateButton.setText("바로 생성하기");
-//		generateButton.setEnabled(false);//선택된 목록이 0개일때는 비활성화
 		
 //	    column1.addListener(SWT.Selection, sortListener);
 //	    column2.addListener(SWT.Selection, sortListener);
@@ -106,43 +198,48 @@ public class SpecInfoPage extends WizardPage{
 //		boolean check = button.getSelection();
 //		Label label = new Label(topLevel, SWT.CENTER);
 //		label.setText("조회조건: 프로젝트 명 ");
-//		
-//		projectNameText = new Text(topLevel, SWT.SINGLE | SWT.BORDER);
-//		projectNameText.setEnabled(true);
-//		projectNameText.setTextLimit(255);
-//		projectNameText.setFont(topLevel.getFont());
-//		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-//      viewer.setContentProvider(new TreeContentProvider());
-//      viewer.getTree().setHeaderVisible(true);
-//      viewer.getTree().setLinesVisible(true);
-//
-//      TreeViewerColumn viewerColumn = new TreeViewerColumn(viewer, SWT.NONE);
-//      viewerColumn.getColumn().setWidth(300);
-//      viewerColumn.getColumn().setText("Names");
-//      viewerColumn.setLabelProvider(new ColumnLabelProvider());
-//
-//      GridLayoutFactory.fillDefaults().generateLayout(parent);
+
 		setControl(parent);
-		setPageComplete(true);
+//		setPageComplete(true);
 	}
 	
-	public boolean useDefaultDirectory(){
-		return generateButton.getSelection();
+//	public IWizardPage getNextPage() {
+//		EclipseUtil.showInfoDialog(getShell(), "언제 호출되는지 확인");
+		//Next 버튼 누르는 시점에 선택된 체크 항목에 대해 테스트 케이스 분석 후 다음 페이지 테이블 리프레시 수행
+//		((SpecInfoWizard)getWizard()).analyzeRestAPI();
+//		return super.getNextPage();
+//	}
+
+	public CheckboxTableViewer getTableViewer() {
+		return tableViewer;
 	}
 
+	public Combo getOutputTypeCB() {
+		return outputTypeCB;
+	}
+
+	public Button getPreviewButton() {
+		return previewButton;
+	}
+
+	public Combo getAnalyzeLevelCB() {
+		return analyzeLevelCB;
+	}
+
+	public Button getAllCheckButton() {
+		return allCheckButton;
+	}
 }
 
 class TagContentProvider implements IStructuredContentProvider{
 	@Override
 	public Object[] getElements(Object arg0) {
-//		return new RestAPIInfoViewVO((RestAPIInfo) arg0).getInformation();
 		List<RestAPIInfo> itemList = (List<RestAPIInfo>) arg0; 
 		return itemList.toArray();
 	}
 }
 
 class TagLabelProvider implements ITableLabelProvider{
-
 	@Override
 	public void addListener(ILabelProviderListener arg0) {
 	}
@@ -187,22 +284,3 @@ class TagLabelProvider implements ITableLabelProvider{
 		
 	}
 }
-
-//class RestAPIInfoViewVO{
-//	RestAPIInfo restAPIInfo;
-//	public RestAPIInfoViewVO(RestAPIInfo restAPIInfo) {
-//		this.restAPIInfo = restAPIInfo;
-//	}
-//	
-//	public String[] getInformation() {
-//		String[] texts = new String[6];
-//		texts[0] = "false";
-//		texts[1] = restAPIInfo.getApiName();
-//		texts[2] = restAPIInfo.getMethod();
-//		texts[3] = restAPIInfo.getDescription();
-//		texts[4] = restAPIInfo.getApiPath();
-//		texts[5] = restAPIInfo.getApiTag();
-//		
-//		return texts;
-//	}
-//}

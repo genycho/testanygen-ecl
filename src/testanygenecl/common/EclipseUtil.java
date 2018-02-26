@@ -14,7 +14,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import testanygenecl.Activator;
 
@@ -79,11 +85,6 @@ public class EclipseUtil {
             IProject project = findProject(projectName);   
             project.refreshLocal(IResource.DEPTH_INFINITE, null);   
    
-            // IWorkspace workspace =   
-            // ResourcesPlugin.getWorkspace();   
-            // workspace.getRoot().getProject(projectName)   
-            // .refreshLocal(IResource.DEPTH_INFINITE,   
-            // null);   
         } catch (CoreException e) {
 			EclipseUtil.showException("refresh error", IStatus.ERROR, e);
 		}   
@@ -122,5 +123,49 @@ public class EclipseUtil {
         }   
         return null;   
     }   
+    
+    /**
+	 * 반복되는 작업을 줄이기 위한 공통 메소드
+	 * @param parent
+	 * @param text
+	 * @return
+	 */
+	public static Label getLabel(Composite parent, String text) {
+		Label label = new Label(parent, SWT.CENTER);
+		label.setText(text);
+		return label;
+	}
+	
+	/**
+	 * 반복되는 작업을 줄이기 위한 공통 메소드
+	 * @param parent
+	 * @param text
+	 * @param width
+	 * @return
+	 */
+	public static Text getTextField(Composite parent, String text, int width){
+		Text textField = new Text(parent, SWT.SINGLE | SWT.BORDER);
+		if(text == null){
+			text = "";
+		}
+		textField.setText(text);
+		textField.setTextLimit(255);
+		textField.setFont(parent.getFont());
+		GridData row = new GridData(width,12);
+		textField.setLayoutData(row);
+		
+		return textField;
+	}
+	
+	public static GridLayout getDefaultGridLayout(Shell shell, int columnCount) {
+		return getDefaultGridLayout(shell, columnCount, true);
+	}
+	
+	public static GridLayout getDefaultGridLayout(Shell shell, int columnCount, boolean columnEquals) {
+		GridLayout gridLayout = new GridLayout(columnCount, columnEquals);
+		gridLayout.horizontalSpacing = 0;
+		gridLayout.verticalSpacing = 0;
+		return gridLayout;
+	}
    
 }

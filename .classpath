@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/json-simple-1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/swagger-core-1.5.16.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/swagger-models-1.5.16.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/swagger-parser-1.0.31.jar" sourcepath="C:/Users/09543/.m2/repository/io/swagger/swagger-parser/1.0.31/swagger-parser-1.0.31-sources.jar"/>
-	<classpathentry kind="lib" path="lib/tag-core.jar"/>
+	<classpathentry kind="lib" path="lib/tag-core.jar" sourcepath="/testanygen"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.26-incubating.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-dataformat-yaml-2.3.0.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.7.22.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-ext-1.6.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
